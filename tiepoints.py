@@ -1,26 +1,26 @@
 # --Build in--
 import os
 import json
+import sys
 
 # --Proprietary--
+sys.path.append('./functions')
 import n5esmr
-import filters
 
 # --Third Party--
 import numpy as np
-import xarray as xr
 from glob import glob
 import cv2
 from tqdm import tqdm
 
 
 # %% constants
-DATADIR = 'D:/Nimbus5Data/data/TAR_ESMR_ERA5_colocated'
-SAVEDIR = 'C:/Users/emilt/Documents/Noter/N5_ESMR/newTP'
+DATADIR = 'D:/N5ESMR/ESMR_ERA5_colocated'
+SAVEDIR = './outputs/newTP'
 FIRSTBEAM = 4
 LASTBEAM = 74
 FIRSTDATE = '1972-12-11'
-LASTDATE = '1973-01-01'#'1977-05-16'
+LASTDATE = '1972-12-13'#'1977-05-16'
 
 
 # %% Tie point main function
@@ -35,33 +35,10 @@ def tiepoint(date):
     subdir = DATADIR + '/ESMR_ERA5_coloc_' + year
     files = glob(subdir + '/Nimbus5-ESMR_' + year + 'm' + month + day + '*')
     if files:
-        # loading relevant data from files into common storage object
-        params = ['Latitude','Longitude','sst','t2m','tcw','tcwv','u10','v10','siconc','Brightness_temperature']
-        dataStore = n5esmr.n5esmrStorage(params)
-        for file in files:
-            #applying filters
-            ds = xr.load_dataset(file)
-            Tb = ds['Brightness_temperature'].values
-            
-            if not filters.acceptanceFilter(Tb):
-                filters.swathFilter(Tb)
-
-                #storing data
-                ds['Brightness_temperature'] = (['Time','obs'],Tb)
-                dataStore.addFile(ds)
-
-        dataStore.merge()
-        dataStore.remove_outer_beams(FIRSTBEAM, LASTBEAM)
-        data = dataStore.storage
-
-        # deriving specified climate and satellite parameters for RTM model
-        data['clw'] = data['tcw'] - data['tcwv']
-        data['wind'] = np.sqrt(data['u10']**2 + data['v10']**2)
-        data['incidence_angle'] = np.ones(data['tcw'].shape)*n5esmr.spos2ia[None, FIRSTBEAM:LASTBEAM] #Why do we use IA when already corrected for?
-        mt2m = data['t2m'].copy()
-        mt2m[(mt2m < 271.35)] = 271.35
-        data['mt2m'] = mt2m
-
+        # loading relevant data from all files, filter, and add to dict and calculating extra parameters
+        data = n5esmr.loadParams(files, [FIRSTBEAM,LASTBEAM])
+        if not data:
+            return
 
         # %% calculation of tiepoints
         #smearing SIC via uniform filter
@@ -117,9 +94,9 @@ def applyRTM(data, ref, hemisphere, surface):
 
     # picking relevant area depending on hemisphere
     if hemisphere == 'N':
-        cref = (data['Latitude'] >=0) & ref
+        cref = (data['Latitude'] >= 0) & ref
     elif hemisphere == 'S':
-        cref = (data['Latitude'] <=0) & ref
+        cref = (data['Latitude'] <= 0) & ref
     else:
         raise 'Unrecognized hemisphere'
 
