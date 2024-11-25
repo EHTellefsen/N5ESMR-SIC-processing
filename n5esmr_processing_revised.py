@@ -1,3 +1,13 @@
+"""
+Revised processing script for Radiative Transfer Model (RTM) corrected daily Sea Ice Concentration (SIC) for the 
+Nimbus 5 Electrically Scanning Microwave Radiometer (N5ESMR) using corrected daily tie points.
+
+Author: Emil Haaber Tellefsen
+Co-Author: Wiebke Marghitta Kolbe, Rasmus Tage Tonboe
+
+Date: 04/11/2024
+"""
+
 # --Build in--
 import os
 import json
@@ -26,7 +36,6 @@ FIRSTBEAM = 4
 LASTBEAM = 74
 FIRSTDATE = '1972-12-11'
 LASTDATE = '1977-05-16'
-TB_ERROR = 3.0
 
 def n5esmr_process(date):
     date = str(date)
@@ -44,9 +53,9 @@ def n5esmr_process(date):
         data = n5esmr.loadParams(files, [FIRSTBEAM,LASTBEAM])
         if not data:
             return
-
-    run4hemisphere(data, TP_data, 'N', [32, 90], date)
-    run4hemisphere(data, TP_data, 'S', [-90, -48], date)
+        else:
+            run4hemisphere(data, TP_data, 'N', [32, 90], date)
+            run4hemisphere(data, TP_data, 'S', [-90, -48], date)
 
 
 # %%
@@ -70,6 +79,9 @@ def run4hemisphere(data, TP_data, hemisphere, latlims, date):
     
     #masking atributes to be used based on latlims
     cref = (data['Latitude'] > latlims[0]) & (data['Latitude'] < latlims[1])
+    if np.all(~cref):
+        return
+
     lat = data['Latitude'][cref]
     lon = data['Longitude'][cref]
     Tb = data['Brightness_temperature'][cref]
@@ -127,7 +139,7 @@ def run4hemisphere(data, TP_data, hemisphere, latlims, date):
     data_vars['total_standard_error'] = np.sqrt(data_vars['smearing_standard_error']**2 + data_vars['algorithm_standard_error']**2)
     
     # %% flags
-    flag = np.ones([area_shape, area_shape], dtype=np.uint16)*4 #assuming open water filter per default
+    flag = np.ones([area_shape, area_shape], dtype=int)*4 #assuming open water filter per default
     
     # load masks
     maskdata = xr.open_dataset(maskfile)
