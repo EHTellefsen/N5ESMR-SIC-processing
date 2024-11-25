@@ -7,7 +7,7 @@ Since publication, 2 major challenges have been identified, which the code of th
 - Given N5EMSR only measures the horizontal channel, distinguishing multiyear-ice from lower sea ice concentration is ambiguious.
 
 A new filtering paradigm have therefore been implimented, and while doing so, bugs in the processing have been identified, and the code have been rewritten to simplify future processing. Furthermore, a scheme
-for correcting the multiyear ice ambiguity have been implimented called "local dynamical tiepoints" (LDTP). This takes the temporal stability of the local brightness temperature into account, and picks local tiepoints
+for correcting the multi year ice ambiguity have been implimented called "local dynamical tie points" (LDTP). This takes the temporal stability of the local brightness temperature into account, and picks local tie points
 from this to predict the sea ice concentration.
 
 ## Methods
