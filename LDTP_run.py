@@ -149,7 +149,7 @@ class LDTP:
                 delta_Tb_water = (-(1 - SIC_clip)*self.refTP['OTP_std'][i] / dTP)**2
                 delta_Tb_ice = (-SIC_clip*self.LDTP_std / dTP)**2
                 algorithm_uncertainty = np.sqrt(delta_Tb_water + delta_Tb_ice)
-                total_uncertainty = np.sqrt(smearing_uncertainty + algorithm_uncertainty)
+                total_uncertainty = np.sqrt(smearing_uncertainty**2 + algorithm_uncertainty**2)
 
                 # making flags and filter
                 flags, SIC_filtered, total_uncertainty_filtered = self.flagsAndCorrections(SIC, total_uncertainty, oldFlags, month)
