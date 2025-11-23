@@ -299,7 +299,7 @@ def LDTP_NetCDF(data_vars, date, hemisphere, area_def, save_dir):
         creator_type = 'University', # TO BE CHANGED
         creator_url = 'https://www.space.dtu.dk/',
         # creator_email =  '', # TO BE CHANGED
-        license =  "All intellectual property rights of the ESA Climate Change Initiative products belong to ESA. The use of these products is granted to every user, free of charge. If users wish to use these products, ESA's copyright credit must be shown by displaying the words 'Copyright ESA' under each of the products shown. ESA offers no warranty and accepts no liability. ESA neither commits to nor guarantees the continuity, availability, or quality or suitability for any purpose.",
+        license =  'ESA CCI Data Policy: free and open access.',
         # LICENSE NEEDS TO BE CHANGED
         references =  'https://climate.esa.int/en/projects/sea-ice/Sea-Ice-Key-Documents/', #TO BE CHANGED
         history =  ('%sZ creation' % (today)), #'2021-11-10T14:00:00Z creation',
